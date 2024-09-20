@@ -1,28 +1,55 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const signupForm = document.querySelector('section');
-    signupForm.style.opacity = 0;
-  
-    setTimeout(() => {
-      signupForm.style.transition = 'opacity 1s ease-in-out';
-      signupForm.style.opacity = 1;
-    }, 500);
-  
-    const signupButton = document.querySelector('button');
-    signupButton.addEventListener('click', function () {
+  const signupButton = document.querySelector('button');
+
+  signupButton.addEventListener('click', function (e) {
       const emailInput = document.querySelector('input[type="email"]');
       const passwordInput = document.querySelector('input[type="password"]');
-      const confirmPasswordInput = document.querySelector('input[type="password"][name="confirm-password"]');
-  
-      // Check for a valid email and password (you can add your validation logic here)
-      const isValid = emailInput.checkValidity() && passwordInput.checkValidity() && confirmPasswordInput.checkValidity();
-  
-      if (!isValid) {
-        signupForm.classList.add('shake');
-  
-        setTimeout(() => {
-          signupForm.classList.remove('shake');
-        }, 1000);
+      const confirmPasswordInput = document.querySelector('input[name="passwordcon"]');
+      const usernameInput = document.querySelector('input[name="username"]');
+      
+      
+      if (!emailInput.reportValidity() || !passwordInput.reportValidity() || !confirmPasswordInput.reportValidity() || !usernameInput.reportValidity()) {
+          e.preventDefault();
+          return;
       }
-    });
+
+     
+      const usernameValid = /^[A-Za-z]+$/.test(usernameInput.value);
+      if (!usernameValid) {
+          showError(usernameInput, "Username should contain only letters.");
+          e.preventDefault();
+          return;
+      }
+
+     
+      if (passwordInput.value !== confirmPasswordInput.value) {
+          showError(confirmPasswordInput, "Passwords do not match.");
+          e.preventDefault();
+          return;
+      }
+
+      if (passwordInput.value.length < 6) {
+          showError(passwordInput, "Password should be at least 6 characters long.");
+          e.preventDefault();
+          return;
+      }
+
+      
+      signupButton.disabled = true;
   });
+
   
+  function showError(input, message) {
+      const errorElement = document.createElement('div');
+      errorElement.classList.add('error-message');
+      errorElement.textContent = message;
+      input.insertAdjacentElement('afterend', errorElement);
+
+    
+      input.addEventListener('input', function () {
+          if (errorElement) {
+              errorElement.remove();
+          }
+      });
+  }
+});

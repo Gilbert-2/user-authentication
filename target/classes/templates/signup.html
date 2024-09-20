@@ -3,75 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <title>Signup Form</title>
-  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/signup.js" defer></script>
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="signup.js" defer></script>
 </head>
 <body>
   <section>
-    <form action="/req/signup" method="post">
+    <form id="signupForm" method="post">
       <h1>Sign Up</h1>
-        <div class="inputbox">
-            <ion-icon name="person-outline"></ion-icon>
-            <input type="text" id= "username" name="username" required>
-            <label for="">Name</label>
-        </div>
-        <div class="inputbox">
-            <ion-icon name="mail-outline"></ion-icon>
-            <input type="email" id="email" name="email" required>
-            <label for="">Email</label>
-        </div>
-        
-        <div class="inputbox">
-            <ion-icon name="lock-closed-outline"></ion-icon>
-            <input type="password" id="password" name="password" required>
-            <label for="">Password</label>
-        </div>  
-        <div class="inputbox">
-          <ion-icon name="lock-closed-outline"></ion-icon>
-          <input type="password" id="passwordcon" name="passwordcon" required>
-          <label for="">Confirm Password</label>
-      </div>  
-        <button id= "submit" type="submit">Sign Up</button>
+      <div class="inputbox">
+        <ion-icon name="person-outline" aria-label="Person icon"></ion-icon>
+        <input type="text" id="username" name="username" required>
+        <label for="username">Name</label>
+      </div>
+      <div class="inputbox">
+        <ion-icon name="mail-outline" aria-label="Mail icon"></ion-icon>
+        <input type="email" id="email" name="email" required>
+        <label for="email">Email</label>
+      </div>
+      <div class="inputbox">
+        <ion-icon name="lock-closed-outline" aria-label="Lock icon"></ion-icon>
+        <input type="password" id="password" name="password" required>
+        <label for="password">Password</label>
+      </div>
+      <div class="inputbox">
+        <ion-icon name="lock-closed-outline" aria-label="Lock icon"></ion-icon>
+        <input type="password" id="passwordcon" name="passwordConfirmation" required>
+        <label for="passwordcon">Confirm Password</label>
+      </div>
+      <button id="submit" type="submit">Sign Up</button>
       <div class="register">
         <p>Already have an account? <a href="/req/login">Log In</a></p>
       </div>
+      <div id="message" style="color: red;"></div>
     </form>
   </section>
-</body>
-</html>
-<script>
-  const submitButttom = document.getElementById("submit");
-  submitButttom.addEventListener('click',()=>{
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('passwordcon').value;
-    const email = document.getElementById('email').value;
-    const data ={
-      username,
-      email,
-      password
-    }
-    
-    if(password == confirmPassword){
-      const jsonData = JSON.stringify(data);
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function(event) {
+      event.preventDefault(); 
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('passwordcon').value;
+      const email = document.getElementById('email').value;
+
+     
+      const usernamePattern = /^[A-Za-z]+$/; 
+
+      
+      if (!usernamePattern.test(username)) {
+        document.getElementById('message').textContent = 'Username should contain only letters';
+        return;
+      }
+
+      
+      if (password.length < 8) {
+        document.getElementById('message').textContent = 'Password should be at least 8 characters long';
+        return;
+      }
+
+     
+      if (password !== confirmPassword) {
+        document.getElementById('message').textContent = 'Passwords do not match';
+        return;
+      }
+
+      const data = {
+        username,
+        email,
+        password,
+        passwordConfirmation: confirmPassword 
+      };
+
       fetch('/req/signup', {
         method: 'POST',
-        headers:{
+        headers: {
           'Content-Type': 'application/json'
         },
-        body: jsonData
+        body: JSON.stringify(data)
       })
-      .then(response =>{
-        //alert('succesfull');
-        //if(response.status == 200){
-          //alert('succesfull');
-        //xs}
+      .then(response => {
+        if (response.ok) {
+          return response.text().then(text => {
+            document.getElementById('message').style.color = 'green'; 
+            document.getElementById('message').textContent = text; 
+            setTimeout(() => {
+              window.location.href = '/req/login'; // Redirect to login after 3 seconds
+            }, 3000);
+          });
+        } else {
+          return response.text().then(text => {
+            document.getElementById('message').textContent = text;
+          });
+        }
       })
-    }
-    
-  })
-
-  
-</script>
+      .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('message').textContent = 'An error occurred during signup';
+      });
+    });
+  </script>
+</body>
+</html>
