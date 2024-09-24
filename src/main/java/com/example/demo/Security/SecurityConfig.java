@@ -8,6 +8,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +26,7 @@ public class SecurityConfig {
     public SecurityConfig(MyAppUserService appUserService) {
         this.appUserService = appUserService;
     }
-
+    
     @Bean
     public UserDetailsService userDetailsService() {
         return appUserService;
@@ -53,22 +54,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, @Lazy JwtFilter jwtFilter) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/req/signup", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/req/login", "/req/signup", "/req/reset-password", "/req/check-username", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/req/login")
-                .loginProcessingUrl("/req/login")
-                .defaultSuccessUrl("/index")
-                .failureUrl("/req/login?error=true")
-                .permitAll()
+                .disable()
             )
             .logout(logout -> logout
                 .logoutUrl("/req/logout")
                 .logoutSuccessUrl("/req/login?logout=true")
                 .permitAll()
             )
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .maximumSessions(1)
+            );
 
         return http.build();
     }

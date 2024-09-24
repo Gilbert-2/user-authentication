@@ -1,10 +1,12 @@
 com\example\demo\DemoApplication.class
 com\example\demo\Security\JwtUtil.class
+com\example\demo\Model\ForgotPasswordService.class
 com\example\demo\Controller\ContentController.class
 com\example\demo\Model\MyAppUser.class
 com\example\demo\Controller\RegistrationController.class
 com\example\demo\Security\JwtFilter.class
 com\example\demo\Security\SecurityConfig.class
 com\example\demo\Controller\ContentController$AuthResponse.class
+com\example\demo\Controller\ContentController$ResetPasswordRequest.class
 com\example\demo\Model\MyAppUserService.class
 com\example\demo\Model\MyAppUserRepository.class

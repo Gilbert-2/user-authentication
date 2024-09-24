@@ -31,6 +31,8 @@ public class MyAppUser {
     @NotBlank(message = "Password confirmation is required")
     private String passwordConfirmation;
 
+   
+
     public Long getId() {
         return id;
     }

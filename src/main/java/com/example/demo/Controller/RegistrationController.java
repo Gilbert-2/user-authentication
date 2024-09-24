@@ -32,7 +32,6 @@ public class RegistrationController {
     public ResponseEntity<String> createUser(@Validated @RequestBody MyAppUser user, BindingResult result) {
         logger.info("Received signup request for username: {}", user.getUsername());
 
-        
         if (result.hasErrors()) {
             String errorMessage = Optional.ofNullable(result.getFieldError())
                                           .map(error -> error.getDefaultMessage())
@@ -41,27 +40,22 @@ public class RegistrationController {
             return new ResponseEntity<>(errorMessage, HttpStatus.BAD_REQUEST);
         }
 
-       
         if (myAppUserRepository.findByUsername(user.getUsername()).isPresent()) {
             logger.warn("Username already exists: {}", user.getUsername());
             return new ResponseEntity<>("Username already exists", HttpStatus.CONFLICT);
         }
 
-       
         if (!user.getPassword().equals(user.getPasswordConfirmation())) {
             logger.error("Passwords do not match for username: {}", user.getUsername());
             return new ResponseEntity<>("Passwords do not match", HttpStatus.BAD_REQUEST);
         }
 
-        
         if (user.getPassword().length() < 8) {
             logger.error("Password is too short for username: {}", user.getUsername());
             return new ResponseEntity<>("Password must be at least 8 characters long", HttpStatus.BAD_REQUEST);
         }
 
-       
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setPasswordConfirmation(passwordEncoder.encode(user.getPasswordConfirmation())); // Store hashed confirmation password
         myAppUserRepository.save(user);
         logger.info("Signup successful for username: {}", user.getUsername());
 

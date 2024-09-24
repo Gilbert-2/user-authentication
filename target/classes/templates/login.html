@@ -1,37 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-  <link rel="stylesheet" href="/css/style.css">
-  <script src="/js/signup.js" defer></script>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script>
+        function showForgotPasswordInput() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('username-input-form').style.display = 'block';
+            document.getElementById('forgot-password-form').style.display = 'none';
+            document.getElementById('username-error').innerText = '';
+        }
+
+        // Function to handle the login form submission
+    async function handleLogin(event) {
+    event.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const loginError = document.getElementById('login-error');
+
+    loginError.innerText = '';
+
+    try {
+        const response = await fetch('/req/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            window.location.href = '/index.html'; 
+        } else {
+            const errorMessage = await response.text();
+            loginError.innerText = errorMessage;
+        }
+    } catch (error) {
+        loginError.innerText = 'An error occurred during login. Please try again.';
+        console.error('Error during login:', error);
+    }
+}
+
+   // Function to handle the username validation for forgot password
+   async function validateUsername() {
+    const username = document.getElementById('forgot-username').value.trim();
+    const usernameError = document.getElementById('username-error');
+    const resetPasswordForm = document.getElementById('forgot-password-form');
+    const forgotPasswordForm = document.getElementById('username-input-form');
+
+    usernameError.innerText = '';
+    resetPasswordForm.style.display = 'none';
+    forgotPasswordForm.style.display = 'block';
+
+    try {
+        const response = await fetch('/req/check-username', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username })
+        });
+
+        if (response.ok) {
+            forgotPasswordForm.style.display = 'none';
+            resetPasswordForm.style.display = 'block';
+            usernameError.innerText = '';
+        } else if (response.status === 404) {
+            usernameError.innerText = 'Username does not exist';
+            resetPasswordForm.style.display = 'none'; 
+        } else {
+            usernameError.innerText = 'Error occurred while checking the username. Please try again.';
+            resetPasswordForm.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error during username validation:', error);
+        usernameError.innerText = 'Error occurred while checking the username. Please try again.';
+        resetPasswordForm.style.display = 'none';
+    }
+}
+
+   // Function to handle the password reset
+    async function resetPassword() {
+    const newPassword = document.getElementById('new-password').value.trim();
+    const confirmPassword = document.getElementById('confirm-password').value.trim();
+    const passwordError = document.getElementById('password-error');
+    const successMessage = document.getElementById('success-message');
+
+    passwordError.innerText = '';
+    successMessage.innerText = '';
+
+    if (newPassword !== confirmPassword) {
+        passwordError.innerText = 'Passwords do not match';
+        return;
+    }
+
+    if (newPassword.length < 8 || /\s/.test(newPassword)) {
+        passwordError.innerText = 'Password must be at least 8 characters long and cannot contain spaces';
+        return;
+    }
+
+    try {
+        const username = document.getElementById('forgot-username').value.trim();
+        const response = await fetch('/req/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, newPassword })
+        });
+
+        if (response.ok) {
+            successMessage.innerText = 'Password reset successfully!';
+            document.getElementById('forgot-password-form').reset();
+        } else {
+            passwordError.innerText = 'Error occurred while resetting the password. Please try again.';
+        }
+    } catch (error) {
+        passwordError.innerText = 'An error occurred. Please try again.';
+        console.error('Error during password reset:', error);
+    }
+}
+</script>
 </head>
-<body>
+  <body>
     <section>
-        <form action="/req/login" method="post">
+        <form id="login-form" onsubmit="handleLogin(event)">
             <h1>Login</h1>
             <div class="dialog-row">
-                <label th:if="${param.error}" th:text="${session['SPRING_SECURITY_LAST_EXCEPTION'].message}" class="text-center redText"></label>                   
+                <label id="login-error" style="color: red;"></label>
             </div>
             <div class="inputbox">
-                <ion-icon name="email-outline" aria-label="Email icon"></ion-icon>
-                <input name="username" id="username" type="text" required>
+                <ion-icon name="person-outline" aria-label="Username icon"></ion-icon>
+                <input id="username" type="text" required>
                 <label for="username">Username</label>
             </div>
             <div class="inputbox">
-                <ion-icon name="lock-closed-outline" aria-label="Lock icon"></ion-icon>
-                <input name="password" type="password" id="password" required>
+                <ion-icon name="lock-closed-outline" aria-label="Password icon"></ion-icon>
+                <input type="password" id="password" required>
                 <label for="password">Password</label>
             </div>
             <div class="register">
-                <p><a href="#">Forgot Password?</a></p>
+                <p><a href="#" onclick="showForgotPasswordInput()">Forgot Password?</a></p>
             </div>
             <button type="submit">Log in</button>
             <div class="register">
-                <p>Don't have an account? <a href="/req/signup">Register!!</a></p>
+                <p>Don't have an account? <a href="/req/signup">Register!</a></p>
             </div>
+        </form>
+
+        <div id="username-input-form" style="display: none;">
+            <h1>Forgot Password</h1>
+            <div class="inputbox">
+                <ion-icon name="person-outline" aria-label="Username icon"></ion-icon>
+                <input id="forgot-username" type="text" required>
+                <label for="forgot-username">Username</label>
+                <p id="username-error" style="color: red;"></p>
+            </div>
+            <button type="button" onclick="validateUsername()">Send</button>
+        </div>
+
+        <form id="forgot-password-form" style="display: none;">
+            <h1>Reset Password</h1>
+            <div class="inputbox">
+                <ion-icon name="lock-closed-outline" aria-label="New Password icon"></ion-icon>
+                <input type="password" id="new-password" required>
+                <label for="new-password">New Password</label>
+                <p id="password-error" style="color: red;"></p>
+            </div>
+            <div class="inputbox">
+                <ion-icon name="lock-closed-outline" aria-label="Confirm Password icon"></ion-icon>
+                <input type="password" id="confirm-password" required>
+                <label for="confirm-password">Confirm Password</label>
+            </div>
+            <button type="button" onclick="resetPassword()">Reset Password</button>
+            <p id="success-message" style="color: green;"></p>
         </form>
     </section>
 </body>
