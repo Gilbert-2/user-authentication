@@ -13,14 +13,11 @@ import java.util.Map;
 
 @Component
 public class JwtUtil {
-
     private final String secret = "U29tZVNlY3JldEtleUhhc1RvQmVDb21wbGV4";  
-
     private Key getSigningKey() {
         byte[] keyBytes = Base64.getDecoder().decode(secret);
         return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
     }
-
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
@@ -31,7 +28,6 @@ public class JwtUtil {
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
     public Boolean validateToken(String token, String username) {
         if (username == null || username.isEmpty()) {
             return false;
@@ -39,11 +35,9 @@ public class JwtUtil {
         final String tokenUsername = extractUsername(token);
         return (tokenUsername.equals(username) && !isTokenExpired(token));
     }
-
     public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
-
     private Claims extractAllClaims(String token) {
         try {
             return Jwts.parserBuilder()
@@ -52,12 +46,10 @@ public class JwtUtil {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-          
             System.err.println("JWT parsing error: " + e.getMessage());
             return null; 
         }
     }
-
     private Boolean isTokenExpired(String token) {
         return extractAllClaims(token).getExpiration().before(new Date());
     }

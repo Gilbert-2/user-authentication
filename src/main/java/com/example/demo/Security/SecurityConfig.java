@@ -14,24 +14,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
 import com.example.demo.Model.MyAppUserService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     private final MyAppUserService appUserService;
-
     public SecurityConfig(MyAppUserService appUserService) {
         this.appUserService = appUserService;
     }
-    
     @Bean
     public UserDetailsService userDetailsService() {
         return appUserService;
     }
-
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -39,17 +34,14 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, @Lazy JwtFilter jwtFilter) throws Exception {
         http.csrf(csrf -> csrf.disable())
@@ -70,7 +62,6 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .maximumSessions(1)
             );
-
         return http.build();
     }
 }

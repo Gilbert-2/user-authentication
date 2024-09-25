@@ -1,5 +1,4 @@
 package com.example.demo.Security;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,26 +16,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
-
     private static final Logger logger = LoggerFactory.getLogger(JwtFilter.class);
-
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
-
     public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-
         // Get Authorization header
         final String authorizationHeader = request.getHeader("Authorization");
         String username = null;
         String jwt = null;
-
         // Check if Authorization header is valid
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
@@ -50,17 +43,12 @@ public class JwtFilter extends OncePerRequestFilter {
         } else {
             logger.warn("JWT token is missing or does not start with Bearer");
         }
-        // Proceed if the username is found and there is no existing authentication in context
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-        
-            // Validate the token (including expiration)
             if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                
-                // Set authentication in context
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 logger.info("User {} authenticated successfully", username);
             } else {
@@ -71,7 +59,6 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
-
     private void sendErrorResponse(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");

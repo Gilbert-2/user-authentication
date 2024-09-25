@@ -38,44 +38,32 @@
       <div id="message" style="color: red;"></div>
     </form>
   </section>
-
   <script>
     document.getElementById('signupForm').addEventListener('submit', function(event) {
       event.preventDefault(); 
-
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('passwordcon').value;
       const email = document.getElementById('email').value;
-
-     
       const usernamePattern = /^[A-Za-z]+$/; 
-
-      
       if (!usernamePattern.test(username)) {
         document.getElementById('message').textContent = 'Username should contain only letters';
         return;
       }
-
-      
       if (password.length < 8) {
         document.getElementById('message').textContent = 'Password should be at least 8 characters long';
         return;
-      }
-
-     
+      }     
       if (password !== confirmPassword) {
         document.getElementById('message').textContent = 'Passwords do not match';
         return;
       }
-
       const data = {
         username,
         email,
         password,
         passwordConfirmation: confirmPassword 
       };
-
       fetch('/req/signup', {
         method: 'POST',
         headers: {
@@ -89,7 +77,7 @@
             document.getElementById('message').style.color = 'green'; 
             document.getElementById('message').textContent = text; 
             setTimeout(() => {
-              window.location.href = '/req/login'; // Redirect to login after 3 seconds
+              window.location.href = '/req/login';
             }, 3000);
           });
         } else {

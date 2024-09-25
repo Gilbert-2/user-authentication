@@ -13,23 +13,19 @@
             document.getElementById('forgot-password-form').style.display = 'none';
             document.getElementById('username-error').innerText = '';
         }
-
         // Function to handle the login form submission
     async function handleLogin(event) {
     event.preventDefault();
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value.trim();
     const loginError = document.getElementById('login-error');
-
     loginError.innerText = '';
-
     try {
         const response = await fetch('/req/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
-
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem('token', data.token);
@@ -43,25 +39,21 @@
         console.error('Error during login:', error);
     }
 }
-
    // Function to handle the username validation for forgot password
    async function validateUsername() {
     const username = document.getElementById('forgot-username').value.trim();
     const usernameError = document.getElementById('username-error');
     const resetPasswordForm = document.getElementById('forgot-password-form');
     const forgotPasswordForm = document.getElementById('username-input-form');
-
     usernameError.innerText = '';
     resetPasswordForm.style.display = 'none';
     forgotPasswordForm.style.display = 'block';
-
     try {
         const response = await fetch('/req/check-username', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username })
         });
-
         if (response.ok) {
             forgotPasswordForm.style.display = 'none';
             resetPasswordForm.style.display = 'block';
@@ -79,27 +71,22 @@
         resetPasswordForm.style.display = 'none';
     }
 }
-
    // Function to handle the password reset
     async function resetPassword() {
     const newPassword = document.getElementById('new-password').value.trim();
     const confirmPassword = document.getElementById('confirm-password').value.trim();
     const passwordError = document.getElementById('password-error');
     const successMessage = document.getElementById('success-message');
-
     passwordError.innerText = '';
     successMessage.innerText = '';
-
     if (newPassword !== confirmPassword) {
         passwordError.innerText = 'Passwords do not match';
         return;
     }
-
     if (newPassword.length < 8 || /\s/.test(newPassword)) {
         passwordError.innerText = 'Password must be at least 8 characters long and cannot contain spaces';
         return;
     }
-
     try {
         const username = document.getElementById('forgot-username').value.trim();
         const response = await fetch('/req/reset-password', {
@@ -107,10 +94,12 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, newPassword })
         });
-
         if (response.ok) {
             successMessage.innerText = 'Password reset successfully!';
             document.getElementById('forgot-password-form').reset();
+            setTimeout(() => {
+              window.location.href = '/req/login';
+            }, 3000);
         } else {
             passwordError.innerText = 'Error occurred while resetting the password. Please try again.';
         }
@@ -146,7 +135,6 @@
                 <p>Don't have an account? <a href="/req/signup">Register!</a></p>
             </div>
         </form>
-
         <div id="username-input-form" style="display: none;">
             <h1>Forgot Password</h1>
             <div class="inputbox">
@@ -157,7 +145,6 @@
             </div>
             <button type="button" onclick="validateUsername()">Send</button>
         </div>
-
         <form id="forgot-password-form" style="display: none;">
             <h1>Reset Password</h1>
             <div class="inputbox">
