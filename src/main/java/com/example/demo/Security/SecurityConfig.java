@@ -46,7 +46,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, @Lazy JwtFilter jwtFilter) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/req/login", "/req/signup", "/req/reset-password", "/req/check-username", "/css/**", "/js/**").permitAll()
+                .requestMatchers("/req/login", "/req/signup", "/req/reset-password", "/req/check-username","/req/index", "/css/**", "/js/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

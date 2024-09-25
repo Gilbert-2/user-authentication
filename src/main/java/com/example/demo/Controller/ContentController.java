@@ -45,10 +45,10 @@ public class ContentController {
         logger.info("User '{}' found in database, proceeding with authentication.", user.getUsername());
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())); 
+                    new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
             String token = jwtUtil.generateToken(authentication.getName());
             logger.info("Generated token for user {}: {}", user.getUsername(), token);
-            return ResponseEntity.ok(Map.of("token", token)); 
+            return ResponseEntity.ok(Map.of("token", token));
         } catch (AuthenticationException e) {
             logger.error("Login failed for user: {}", user.getUsername(), e);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid username or password");
@@ -60,6 +60,10 @@ public class ContentController {
     @GetMapping("/req/signup")
     public String signupPage(Model model) {
         return "signup"; 
+    }
+    @GetMapping("/req/index")
+    public String indexPage(Model model) {
+        return "index"; 
     }
     @PostMapping("/req/check-username")
     public ResponseEntity<String> checkUsername(@RequestBody Map<String, String> payload) {

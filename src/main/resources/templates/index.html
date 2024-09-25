@@ -10,7 +10,7 @@
             margin: 0;
             padding: 0;
         }
-        div{
+        main {
             color: black;
             padding: 5px 10px;
             text-align: center;
@@ -42,6 +42,15 @@
             width: 100%;
         }
     </style>
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('logout-button').addEventListener('click', handleLogout);
+        });
+        function handleLogout() {
+            localStorage.removeItem('token');
+            window.location.href = '/req/login';
+        }
+    </script>
 </head>
 <body>
     <nav>
@@ -53,12 +62,13 @@
     <main>
         <div>
             <h1>Welcome to My Home Page</h1>
-        <div>
+        </div>
         <h2>About Me</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam scelerisque nisl ut sapien interdum, nec ullamcorper velit dapibus. Sed ac vestibulum libero, nec tempor felis.</p>
         <h2>Services</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam scelerisque nisl ut sapien interdum, nec ullamcorper velit dapibus. Sed ac vestibulum libero, nec tempor felis.</p>
     </main>
+    <button id="logout-button">Logout</button>
     <footer>
         <p>ALL Rights Reserved &copy; 2024</p>
     </footer>

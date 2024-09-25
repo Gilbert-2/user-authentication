@@ -3,30 +3,30 @@ package com.example.demo.Security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import javax.crypto.spec.SecretKeySpec;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 import java.security.Key;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class JwtUtil {
-    private final String secret = "U29tZVNlY3JldEtleUhhc1RvQmVDb21wbGV4";  
-    private Key getSigningKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(secret);
-        return new SecretKeySpec(keyBytes, SignatureAlgorithm.HS256.getJcaName());
-    }
+    private final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
+    private final Key signingKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10)) // 10 min expiration
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 10))
+                .signWith(signingKey)
                 .compact();
+        logger.info("Generated token for username: {}", username);
+        return token;
     }
     public Boolean validateToken(String token, String username) {
         if (username == null || username.isEmpty()) {
@@ -41,12 +41,12 @@ public class JwtUtil {
     private Claims extractAllClaims(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(getSigningKey())
+                    .setSigningKey(signingKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            System.err.println("JWT parsing error: " + e.getMessage());
+            logger.error("JWT parsing error: {}", e.getMessage());
             return null; 
         }
     }
