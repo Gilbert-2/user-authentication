@@ -48,6 +48,10 @@
     usernameError.innerText = '';
     resetPasswordForm.style.display = 'none';
     forgotPasswordForm.style.display = 'block';
+    if (!username) {
+        usernameError.innerText = 'Username can not be empty';
+        return;
+    }
     try {
         const response = await fetch('/req/check-username', {
             method: 'POST',
